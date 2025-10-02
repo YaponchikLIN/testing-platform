@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "vue-json-pretty": "^2.4.0"
+  }
+}

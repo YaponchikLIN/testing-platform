@@ -1,0 +1,73 @@
+/* Базовые стили Tailwind CSS */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Глобальные стили для оптимизации FullHD */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Дополнительные стили для темной темы */
+.dark {
+    @apply bg-gray-900 text-white;
+}
+
+/* Оптимизированные адаптивные стили */
+@media (max-width: 640px) {
+    main {
+        padding: 0.75rem;
+    }
+
+    .p-4 {
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 320px) {
+    main {
+        padding: 0.5rem;
+    }
+
+    .p-4 {
+        padding: 0.25rem;
+    }
+}
+
+/* FullHD оптимизация */
+@media (min-width: 1400px) and (max-width: 1920px) {
+    main {
+        padding: 1rem 2rem;
+    }
+
+    .p-4 {
+        padding: 1.5rem;
+    }
+
+    /* Увеличиваем плотность информации */
+    .p-datatable .p-datatable-tbody>tr>td {
+        padding: 0.5rem 0.75rem;
+    }
+
+}
+
+/* 4K и больше */
+@media (min-width: 1921px) {
+    main {
+        padding: 2rem 4rem;
+    }
+
+    .p-4 {
+        padding: 2rem;
+    }
+}

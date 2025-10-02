@@ -1,0 +1,11 @@
+{
+    "slot_1": {
+        "state-failed-reason": "''",
+        "active": "no",
+        "connected": "error",
+        "ping_result": "skipped",
+        "packet_loss": "N/A",
+        "response_time": "N/A"
+    },
+    "progress": 0
+}

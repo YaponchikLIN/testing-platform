@@ -1,0 +1,231 @@
+{
+  "status": {
+    "3gpp": {
+      "enabled-locks": [],
+      "eps": {
+        "initial-bearer": {
+          "dbus-path": "--",
+          "settings": {
+            "apn": "--",
+            "ip-type": "--",
+            "password": "--",
+            "user": "--"
+          }
+        },
+        "ue-mode-operation": "csps-2"
+      },
+      "imei": "861232060550461",
+      "operator-code": "25099",
+      "operator-name": "Beeline",
+      "pco": "--",
+      "registration-state": "home"
+    },
+    "cdma": {
+      "activation-state": "--",
+      "cdma1x-registration-state": "--",
+      "esn": "--",
+      "evdo-registration-state": "--",
+      "meid": "--",
+      "nid": "--",
+      "sid": "--"
+    },
+    "dbus-path": "/org/freedesktop/ModemManager1/Modem/0",
+    "generic": {
+      "access-technologies": ["lte"],
+      "bearers": ["/org/freedesktop/ModemManager1/Bearer/0"],
+      "carrier-configuration": "--",
+      "carrier-configuration-revision": "--",
+      "current-bands": [
+        "egsm",
+        "dcs",
+        "utran-1",
+        "utran-8",
+        "eutran-1",
+        "eutran-3",
+        "eutran-5",
+        "eutran-7",
+        "eutran-8",
+        "eutran-20",
+        "eutran-28",
+        "eutran-38",
+        "eutran-40",
+        "eutran-41"
+      ],
+      "current-capabilities": ["gsm-umts, lte"],
+      "current-modes": "allowed: 2g, 3g, 4g; preferred: 4g",
+      "device": "/sys/devices/platform/101c0000.ehci/usb1/1-1",
+      "device-identifier": "22e836d2b3c559c809e97217158ccbd130e8a1fb",
+      "drivers": ["rndis_host", "option1"],
+      "equipment-identifier": "861232060550461",
+      "hardware-revision": "--",
+      "manufacturer": "MEIG INCORPORATED",
+      "model": "SLM770A",
+      "own-numbers": [],
+      "plugin": "meig",
+      "ports": [
+        "ttyUSB0 (ignored)",
+        "ttyUSB1 (at)",
+        "ttyUSB2 (at)",
+        "ttyUSB3 (gps)",
+        "wwan0 (net)"
+      ],
+      "power-state": "on",
+      "primary-port": "ttyUSB2",
+      "primary-sim-slot": "--",
+      "revision": "SLM770A_3.171.15_EQ102",
+      "signal-quality": {
+        "recent": "no",
+        "value": "80"
+      },
+      "sim": "/org/freedesktop/ModemManager1/SIM/0",
+      "sim-slots": [],
+      "state": "connected",
+      "state-failed-reason": "--",
+      "supported-bands": [
+        "egsm",
+        "dcs",
+        "utran-1",
+        "utran-8",
+        "eutran-1",
+        "eutran-3",
+        "eutran-5",
+        "eutran-7",
+        "eutran-8",
+        "eutran-20",
+        "eutran-28",
+        "eutran-38",
+        "eutran-40",
+        "eutran-41"
+      ],
+      "supported-capabilities": ["gsm-umts, lte"],
+      "supported-ip-families": ["ipv4", "ipv6", "ipv4v6"],
+      "supported-modes": [
+        "allowed: 2g; preferred: none",
+        "allowed: 3g; preferred: none",
+        "allowed: 4g; preferred: none",
+        "allowed: 2g, 3g, 4g; preferred: 4g",
+        "allowed: 2g, 3g, 4g; preferred: 4g",
+        "allowed: 2g, 3g, 4g; preferred: 4g",
+        "allowed: 2g, 3g, 4g; preferred: 2g",
+        "allowed: 2g, 3g, 4g; preferred: 2g",
+        "allowed: 2g, 3g, 4g; preferred: 3g",
+        "allowed: 2g, 3g, 4g; preferred: 3g",
+        "allowed: 3g, 4g; preferred: 4g",
+        "allowed: 2g, 4g; preferred: 4g",
+        "allowed: 3g, 4g; preferred: 3g",
+        "allowed: 2g, 3g; preferred: 3g",
+        "allowed: 2g, 4g; preferred: 2g",
+        "allowed: 2g, 3g; preferred: 2g"
+      ],
+      "unlock-required": "--",
+      "unlock-retries": [
+        "sim-pin (3)",
+        "sim-puk (10)",
+        "sim-pin2 (3)",
+        "sim-puk2 (10)"
+      ]
+    }
+  },
+  "sim": {
+    "dbus-path": "/org/freedesktop/ModemManager1/SIM/0",
+    "properties": {
+      "active": "yes",
+      "eid": "--",
+      "emergency-numbers": [],
+      "iccid": "8970199210341748525",
+      "imsi": "250993282729317",
+      "operator-code": "25099",
+      "operator-name": "Beeline"
+    },
+    "sim-slot": 1
+  },
+  "bearer": {
+    "bearer": {
+      "dbus-path": "/org/freedesktop/ModemManager1/Bearer/0",
+      "ipv4-config": {
+        "address": "--",
+        "dns": [],
+        "gateway": "--",
+        "method": "dhcp",
+        "mtu": "--",
+        "prefix": "0"
+      },
+      "ipv6-config": {
+        "address": "--",
+        "dns": [],
+        "gateway": "--",
+        "method": "--",
+        "mtu": "--",
+        "prefix": "--"
+      },
+      "properties": {
+        "allowed-auth": [],
+        "apn": "testAPN",
+        "apn-type": "--",
+        "ip-type": "ipv4",
+        "password": "--",
+        "profile-id": "--",
+        "rm-protocol": "--",
+        "roaming": "allowed",
+        "user": "--"
+      },
+      "stats": {
+        "attempts": "1",
+        "bytes-rx": "--",
+        "bytes-tx": "--",
+        "duration": "119",
+        "failed-attempts": "--",
+        "total-bytes-rx": "--",
+        "total-bytes-tx": "--",
+        "total-duration": "119"
+      },
+      "status": {
+        "connected": "yes",
+        "connection-error": {
+          "message": "--",
+          "name": "--"
+        },
+        "interface": "wwan0",
+        "ip-timeout": "20",
+        "multiplexed": "no",
+        "profile-id": "--",
+        "suspended": "no"
+      },
+      "type": "default"
+    }
+  },
+  "signal": {
+    "5g": {
+      "rsrp": "--",
+      "rsrq": "--",
+      "snr": "--"
+    },
+    "cdma1x": {
+      "ecio": "--",
+      "rssi": "--"
+    },
+    "evdo": {
+      "ecio": "--",
+      "io": "--",
+      "rssi": "--",
+      "sinr": "--"
+    },
+    "gsm": {
+      "rssi": "--"
+    },
+    "lte": {
+      "rsrp": "-96.00",
+      "rsrq": "-16.00",
+      "rssi": "-63.00",
+      "snr": "-2.00"
+    },
+    "refresh": {
+      "rate": "10"
+    },
+    "umts": {
+      "ecio": "--",
+      "rscp": "--",
+      "rssi": "--"
+    }
+  }
+}
