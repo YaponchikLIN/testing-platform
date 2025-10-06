@@ -10,6 +10,7 @@ from api.routes.post import router as post_router
 from api.routes.get import router as get_router
 from api.routes.firmware import router as firmware_router
 from api.routes.patch import router as patch_router
+from api_service.websocket.endpoint import parse_and_broadcast_gpio_event
 import subprocess
 import threading
 
@@ -31,28 +32,29 @@ async def startup_event():
         print("PostgreSQL подключение установлено")
 
         global gpio_process
-        gpio_process = subprocess.Popen(
-            ["node", "gpio-manager.js"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
+        gpio_process = await asyncio.create_subprocess_exec(
+            "node", "gpio_manager.js",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
         print("✅ GPIO монитор запущен как демон")
 
-        # Чтение вывода в отдельном потоке
-        def read_output():
-            while True:
-                output = gpio_process.stdout.readline()
-                if output:
-                    print(f"[GPIO] {output.strip()}")
-                if gpio_process.poll() is not None:
-                    break
-
-        threading.Thread(target=read_output, daemon=True).start()
+        # Запускаем чтение вывода в фоне
+        asyncio.create_task(read_gpio_output())
 
     except Exception as e:
         print(f"Ошибка подключения к PostgreSQL: {e}")
-        print("Приложение будет работать без сохранения в PostgreSQL")
+
+async def read_gpio_output():
+    """Чтение вывода GPIO процесса"""
+    while True:
+        line = await gpio_process.stdout.readline()
+        if line:
+            line = line.decode().strip()
+            print(f"[GPIO] {line}")
+            await parse_and_broadcast_gpio_event(line)
+        else:
+            break
 
 
 @app.on_event("shutdown")
