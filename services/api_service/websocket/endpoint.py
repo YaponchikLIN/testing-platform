@@ -5,9 +5,11 @@ from api_service.app.config import connected_clients, ConnectedClients
 from db.db_tests import tests_db
 import importlib.util
 import os
+from typing import List
+import json
 
 # Загружаем types модуль напрямую
-types_path = os.path.join(os.path.dirname(__file__), 'types.py')
+types_path = os.path.join(os.path.dirname(__file__), "types.py")
 spec = importlib.util.spec_from_file_location("websocket_types", types_path)
 types_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(types_module)
@@ -61,6 +63,146 @@ async def _subscribe_and_send_initial_status(
                 "result": None,
             }
         )
+
+
+gpio_connections: List[WebSocket] = []
+
+
+@router.websocket("/ws/gpio")
+async def gpio_websocket_endpoint(websocket: WebSocket):
+    """
+    WebSocket для получения событий GPIO в реальном времени
+    """
+    await websocket.accept()
+    gpio_connections.append(websocket)
+
+    print(
+        f"✅ Новое GPIO WebSocket подключение. Всего подключений: {len(gpio_connections)}"
+    )
+
+    try:
+        # Отправляем подтверждение подключения
+        await websocket.send_json(
+            {
+                "type": "connection_established",
+                "message": "Подключен к мониторингу GPIO",
+                "connections_count": len(gpio_connections),
+            }
+        )
+
+        # Держим соединение открытым
+        while True:
+            data = await websocket.receive_text()
+            # Обрабатываем входящие сообщения от клиента (например, ping)
+            if data == "ping":
+                await websocket.send_json({"type": "pong", "timestamp": "..."})
+
+    except WebSocketDisconnect:
+        gpio_connections.remove(websocket)
+        print(
+            f"🔌 GPIO WebSocket отключен. Осталось подключений: {len(gpio_connections)}"
+        )
+
+    except Exception as e:
+        print(f"❌ Ошибка в GPIO WebSocket: {e}")
+        if websocket in gpio_connections:
+            gpio_connections.remove(websocket)
+
+
+# Функция для парсинга GPIO событий из логов Node.js
+async def parse_and_broadcast_gpio_event(log_line: str):
+    """
+    Парсит строку лога Node.js и рассылает события через WebSocket
+    """
+    try:
+        # Парсим события изменения GPIO
+        if "Событие:" in log_line and "GPIO:" in log_line:
+            parts = log_line.split("|")
+            if len(parts) >= 3:
+                event_part = parts[0].strip()
+                value_part = parts[1].strip()
+                time_part = parts[2].strip() if len(parts) > 2 else ""
+
+                # Извлекаем тип события и значение
+                event_type = "🔼 ПОДЪЕМ" if "🔼" in event_part else "🔽 СПАД"
+                value = int(value_part.replace("GPIO:", "").strip())
+
+                event_data = {
+                    "type": "gpio_event",
+                    "event": "rising" if "🔼" in event_type else "falling",
+                    "value": value,
+                    "event_display": event_type,
+                    "timestamp": time_part.replace("Время:", "").strip(),
+                    "raw_message": log_line.strip(),
+                }
+
+                await broadcast_gpio_event(event_data)
+                return
+
+        # Парсим ошибки
+        elif "❌ Ошибка:" in log_line:
+            error_data = {
+                "type": "error",
+                "message": log_line.replace("❌ Ошибка:", "").strip(),
+                "raw_message": log_line.strip(),
+            }
+            await broadcast_gpio_event(error_data)
+            return
+
+        # Логируем другие сообщения для отладки
+        elif "✅" in log_line or "Инициализация" in log_line:
+            print(f"[GPIO Monitor] {log_line.strip()}")
+
+    except Exception as e:
+        print(f"❌ Ошибка парсинга GPIO лога: {e}")
+
+
+# Функция для парсинга GPIO событий из логов Node.js
+async def parse_and_broadcast_gpio_event(log_line: str):
+    """
+    Парсит строку лога Node.js и рассылает события через WebSocket
+    """
+    try:
+        # Парсим события изменения GPIO
+        if "Событие:" in log_line and "GPIO:" in log_line:
+            parts = log_line.split("|")
+            if len(parts) >= 3:
+                event_part = parts[0].strip()
+                value_part = parts[1].strip()
+                time_part = parts[2].strip() if len(parts) > 2 else ""
+
+                # Извлекаем тип события и значение
+                event_type = "🔼 ПОДЪЕМ" if "🔼" in event_part else "🔽 СПАД"
+                value = int(value_part.replace("GPIO:", "").strip())
+
+                event_data = {
+                    "type": "gpio_event",
+                    "event": "rising" if "🔼" in event_type else "falling",
+                    "value": value,
+                    "event_display": event_type,
+                    "timestamp": time_part.replace("Время:", "").strip(),
+                    "raw_message": log_line.strip(),
+                }
+
+                await broadcast_gpio_event(event_data)
+                return
+
+        # Парсим ошибки
+        elif "❌ Ошибка:" in log_line:
+            error_data = {
+                "type": "error",
+                "message": log_line.replace("❌ Ошибка:", "").strip(),
+                "raw_message": log_line.strip(),
+            }
+            await broadcast_gpio_event(error_data)
+            return
+
+        # Логируем другие сообщения для отладки
+        elif "✅" in log_line or "Инициализация" in log_line:
+            print(f"[GPIO Monitor] {log_line.strip()}")
+
+    except Exception as e:
+        print(f"❌ Ошибка парсинга GPIO лога: {e}")
 
 
 @router.websocket("/ws/test-status/{test_id}")
@@ -143,3 +285,31 @@ async def exception_websocket_disconnect_endpoint(
     print(
         f"Подписки для отсоединенного клиента (изначальный запрос: '{type_ws_id}: {subscribed_id}') очищены."
     )
+
+
+async def broadcast_gpio_event(event_data: dict):
+    """
+    Рассылает событие GPIO всем подключенным WebSocket клиентам
+    """
+    if not gpio_connections:
+        return
+
+    message = json.dumps(event_data, ensure_ascii=False)
+    disconnected_connections = []
+
+    for connection in gpio_connections:
+        try:
+            await connection.send_text(message)
+        except Exception as e:
+            print(f"❌ Ошибка отправки GPIO события: {e}")
+            disconnected_connections.append(connection)
+
+    # Удаляем отключенные соединения
+    for connection in disconnected_connections:
+        if connection in gpio_connections:
+            gpio_connections.remove(connection)
+
+    if disconnected_connections:
+        print(
+            f"🔌 Удалено отключенных GPIO соединений: {len(disconnected_connections)}"
+        )

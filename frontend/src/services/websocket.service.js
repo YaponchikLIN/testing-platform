@@ -5,6 +5,54 @@ import { ref } from 'vue';
 
 // const testStatus = ref(''); // Эта переменная, возможно, больше не нужна или требует переосмысления для статуса по каждому тесту
 
+let gpioSocket = null
+
+export function connectGpioWebSocket(callback) {
+    // Закрываем старое соединение если есть
+    if (gpioSocket) {
+        gpioSocket.close()
+    }
+
+    console.log('Подключаемся к GPIO WebSocket...')
+    gpioSocket = new WebSocket('ws://localhost:8001/ws/gpio')
+
+    gpioSocket.onopen = () => {
+        console.log('✅ GPIO WebSocket подключен')
+    }
+
+    gpioSocket.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data)
+
+            // Ловим только события изменения GPIO
+            if (data.type === 'gpio_event') {
+                console.log(`🔌 GPIO изменился: ${data.value}`)
+                // Вызываем callback с данными
+                if (callback) {
+                    callback(data.value)
+                }
+            }
+        } catch (e) {
+            console.error('Ошибка парсинга:', e)
+        }
+    }
+
+    gpioSocket.onerror = (error) => {
+        console.error('❌ Ошибка WebSocket:', error)
+    }
+
+    gpioSocket.onclose = () => {
+        console.log('🔌 GPIO WebSocket отключен')
+    }
+}
+
+export function disconnectGpioWebSocket() {
+    if (gpioSocket) {
+        gpioSocket.close()
+        gpioSocket = null
+    }
+}
+
 export function connectWebSocket(test, dataStore) {
     const tests = dataStore.tests;
     const testId = test.testId;

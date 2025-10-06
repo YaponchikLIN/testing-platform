@@ -10,6 +10,8 @@ from api.routes.post import router as post_router
 from api.routes.get import router as get_router
 from api.routes.firmware import router as firmware_router
 from api.routes.patch import router as patch_router
+import subprocess
+import threading
 
 # Настройка логирования
 logging.basicConfig(
@@ -18,6 +20,8 @@ logging.basicConfig(
 
 app = FastAPI()
 
+gpio_process = None
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -25,6 +29,27 @@ async def startup_event():
     try:
         await db.connect()
         print("PostgreSQL подключение установлено")
+
+        global gpio_process
+        gpio_process = subprocess.Popen(
+            ["node", "gpio-manager.js"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        print("✅ GPIO монитор запущен как демон")
+
+        # Чтение вывода в отдельном потоке
+        def read_output():
+            while True:
+                output = gpio_process.stdout.readline()
+                if output:
+                    print(f"[GPIO] {output.strip()}")
+                if gpio_process.poll() is not None:
+                    break
+
+        threading.Thread(target=read_output, daemon=True).start()
+
     except Exception as e:
         print(f"Ошибка подключения к PostgreSQL: {e}")
         print("Приложение будет работать без сохранения в PostgreSQL")
@@ -35,6 +60,12 @@ async def shutdown_event():
     """Закрытие подключения к PostgreSQL при остановке"""
     await db.disconnect()
     print("PostgreSQL подключение закрыто")
+
+    global gpio_process
+    if gpio_process:
+        gpio_process.terminate()
+        gpio_process.wait()
+        print("✅ GPIO монитор остановлен")
 
 
 # Настройка CORS

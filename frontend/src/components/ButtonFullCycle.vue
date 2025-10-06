@@ -26,8 +26,12 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { connectWebSocket } from "../services/websocket.service.js";
+import { ref, onMounted, onUnmounted } from "vue";
+import {
+  connectWebSocket,
+  connectGpioWebSocket,
+  disconnectGpioWebSocket,
+} from "../services/websocket.service.js";
 import { runFirmwareTestCycle } from "../api/firmware";
 import { useDataStore } from "@/stores/data.store";
 import Dialog from "primevue/dialog";
@@ -40,11 +44,13 @@ const { fetchSNandMAC } = useSNandMAC();
 const { error, fetchOneDevice } = useOneDevice();
 const loading = ref(false);
 const showProgressDialog = ref(false);
+const statusRunFullCycle = ref(false);
 
 const runFullCycle = async () => {
   try {
     loading.value = true;
     showProgressDialog.value = true;
+    statusRunFullCycle.value = true;
 
     console.log("Резервирование данных устройства для теста");
     await fetchSNandMAC(dataStore.order.order_uid);
@@ -101,9 +107,10 @@ const runFullCycle = async () => {
         response.message || "Unknown error occurred during full cycle execution"
       );
     }
+    statusRunFullCycle.value = false;
   } catch (error) {
     console.error("Error during full cycle execution:", error);
-
+    statusRunFullCycle.value = false;
     // Auto-close dialog after 5 seconds on error
     setTimeout(() => {
       showProgressDialog.value = false;
@@ -112,6 +119,23 @@ const runFullCycle = async () => {
     loading.value = false;
   }
 };
+
+const gpioValue = ref(null);
+
+const handleGpioChange = (value) => {
+  gpioValue.value = value;
+  if (gpioValue.value === "1" && !statusRunFullCycle.value) {
+    runFullCycle();
+  }
+};
+
+onMounted(() => {
+  connectGpioWebSocket(handleGpioChange);
+});
+
+onUnmounted(() => {
+  disconnectGpioWebSocket();
+});
 </script>
 
 <style scoped>
