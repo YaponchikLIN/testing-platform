@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted,onUnmounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";
 import SelectPeriod from "./SelectPeriod.vue";
 import SelectDeviceType from "./SelectDeviceType.vue";
@@ -72,29 +72,6 @@ import { useDataStore } from "@/stores/data.store";
 import WorkflowControls from "./WorkflowControls.vue";
 import { useOrders } from "@/composables/useOrders.js";
 import { useSNandMAC } from "@/composables/useSNandMAC.js";
-
-import {
-  connectWebSocket,
-  connectGpioWebSocket,
-  disconnectGpioWebSocket,
-} from "../services/websocket.service.js";
-
-const gpioValue = ref(null);
-
-const handleGpioChange = (value) => {
-  gpioValue.value = value;
-  if (gpioValue.value === "1" && !statusRunFullCycle.value) {
-    runFullCycle();
-  }
-};
-
-onMounted(() => {
-  connectGpioWebSocket(handleGpioChange);
-});
-
-onUnmounted(() => {
-  disconnectGpioWebSocket();
-});
 
 const dataStore = useDataStore();
 const { loading, error, fetchOrders } = useOrders();

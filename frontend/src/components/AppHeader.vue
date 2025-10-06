@@ -13,36 +13,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
 import { useConfigStore } from '../stores/config.store';
 import Button from 'primevue/button';
-import Tooltip from 'primevue/tooltip';
-import {
-  connectWebSocket,
-  connectGpioWebSocket,
-  disconnectGpioWebSocket,
-} from "../services/websocket.service.js";
+import Tooltip from 'primevue/tooltip';zz
 
 const configStore = useConfigStore();
 
 const toggleTheme = () => {
     configStore.toggleTheme();
 };
-
-const gpioValue = ref(null);
-
-const handleGpioChange = (value) => {
-  gpioValue.value = value;
-  if (gpioValue.value === "1" && !statusRunFullCycle.value) {
-    runFullCycle();
-  }
-};
-
-onMounted(() => {
-  connectGpioWebSocket(handleGpioChange);
-});
-
-onUnmounted(() => {
-  disconnectGpioWebSocket();
-});
 </script>
