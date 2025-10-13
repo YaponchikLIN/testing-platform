@@ -23,7 +23,9 @@
     "pinia": "^3.0.2",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.3",
-    "vue": "^3.2.13"
+    "vue": "^3.2.13",
+    "vue-json-pretty": "^2.5.0",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
@@ -75,6 +77,8 @@
       "src/api/**/*.js",
       "!src/api/__tests__/**"
     ],
-    "setupFilesAfterEnv": ["<rootDir>/src/api/__tests__/setup.js"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/api/__tests__/setup.js"
+    ]
   }
 }

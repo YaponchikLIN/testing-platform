@@ -15,7 +15,7 @@
 <script setup>
 import { useConfigStore } from '../stores/config.store';
 import Button from 'primevue/button';
-import Tooltip from 'primevue/tooltip';
+import Tooltip from 'primevue/tooltip';zz
 
 const configStore = useConfigStore();
 

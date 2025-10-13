@@ -124,7 +124,7 @@ const gpioValue = ref(null);
 
 const handleGpioChange = (value) => {
   gpioValue.value = value;
-  if (gpioValue.value === "1" && !statusRunFullCycle.value) {
+  if (gpioValue.value === 1 && !statusRunFullCycle.value) {
     runFullCycle();
   }
 };

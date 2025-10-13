@@ -10,7 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "api_service"))
 
 import asyncio
 from fastapi import FastAPI
-from api_service.app.main import app
+from app.main import app
 
 if __name__ == "__main__":
 

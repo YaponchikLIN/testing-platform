@@ -32,11 +32,11 @@ async def startup_event():
         print("PostgreSQL подключение установлено")
 
         global gpio_process
-        gpio_process = subprocess.Popen(
-            ["node", "gpio-manager.js"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
+        gpio_process = await asyncio.create_subprocess_exec(
+            "node",
+            "gpio_manager.js",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
         print("✅ GPIO монитор запущен как демон")
 
@@ -46,13 +46,6 @@ async def startup_event():
                 output = gpio_process.stdout.readline()
                 if output:
                     print(f"[GPIO] {output.strip()}")
-                    # Парсим и рассылаем события через WebSocket
-                    asyncio.run_coroutine_threadsafe(
-                        parse_and_broadcast_gpio_event(
-                            output
-                        ),  # Используем новую функцию
-                        asyncio.get_event_loop(),
-                    )
                 if gpio_process.poll() is not None:
                     break
 
@@ -60,7 +53,18 @@ async def startup_event():
 
     except Exception as e:
         print(f"Ошибка подключения к PostgreSQL: {e}")
-        print("Приложение будет работать без сохранения в PostgreSQL")
+
+
+async def read_gpio_output():
+    """Чтение вывода GPIO процесса"""
+    while True:
+        line = await gpio_process.stdout.readline()
+        if line:
+            line = line.decode().strip()
+            print(f"[GPIO] {line}")
+            await parse_and_broadcast_gpio_event(line)
+        else:
+            break
 
 
 @app.on_event("shutdown")
