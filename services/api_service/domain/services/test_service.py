@@ -158,37 +158,78 @@ async def run_tests_sequentially(test_request_payload: TestRequest):
     print("Последовательный запуск всех тестов из test_service.py...")
 
     test_status = TestStatus.FAIL
+    wifi_task = None
 
+    # Определяем порядок тестов: WiFi первым, затем остальные
+    test_order = []
+    other_tests = []
+    
     for test_key in tests_db.keys():
         if test_key != "all":
-            test_item_in_db = tests_db[test_key]
-            test_item_in_db["test_id"] = test_key
+            if test_key == "wifi":
+                test_order.insert(0, test_key)  # WiFi первым
+            else:
+                other_tests.append(test_key)
+    
+    test_order.extend(other_tests)  # Добавляем остальные тесты
+    
+    print(f"Порядок выполнения тестов: {test_order}")
 
-            current_time_utc_iso = datetime.datetime.now(
-                datetime.timezone.utc
-            ).strftime("%Y-%m-%dT%H:%M:%SZ")
+    for test_key in test_order:
+        test_item_in_db = tests_db[test_key]
+        test_item_in_db["test_id"] = test_key
 
-            test_item_in_db["status"] = "running"
-            test_item_in_db["time_start"] = current_time_utc_iso
-            test_item_in_db["updated_at"] = current_time_utc_iso
-            test_item_in_db["time_end"] = ""
-            test_item_in_db["result"] = None
+        current_time_utc_iso = datetime.datetime.now(
+            datetime.timezone.utc
+        ).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-            await broadcast_status(test_item_in_db, "running")
+        test_item_in_db["status"] = "running"
+        test_item_in_db["time_start"] = current_time_utc_iso
+        test_item_in_db["updated_at"] = current_time_utc_iso
+        test_item_in_db["time_end"] = ""
+        test_item_in_db["result"] = None
 
+        await broadcast_status(test_item_in_db, "running")
+
+        # Специальная обработка для WiFi теста - запускаем асинхронно
+        if test_key == "wifi":
+            print("Запуск WiFi теста асинхронно...")
+            wifi_task = asyncio.create_task(
+                run_test_simulation(test_item_in_db, test_request_payload)
+            )
+            # Даем WiFi тесту время на инициализацию
+            await asyncio.sleep(5)
+            print("WiFi тест запущен в фоновом режиме, продолжаем с другими тестами")
+        else:
+            # Обычные тесты выполняем синхронно
             result = await run_test_simulation(test_item_in_db, test_request_payload)
 
             if test_status != TestStatus.ERROR or test_status != TestStatus.FAIL:
                 test_status = result
 
-            if test_status == TestStatus.ERROR:
-                test_status = "Ошибка"
-            elif test_status == TestStatus.SUCCESS:
-                test_status = "Успешно"
-            elif test_status == TestStatus.FAIL:
-                test_status = "Неудачно"
-
             print(f"Тест завершён: {test_key}")
+
+    # Ожидаем завершения WiFi теста, если он был запущен
+    if wifi_task:
+        print("Ожидание завершения WiFi теста...")
+        try:
+            wifi_result = await wifi_task
+            print(f"WiFi тест завершён с результатом: {wifi_result}")
+            
+            # Обновляем общий статус с учетом результата WiFi теста
+            if test_status != TestStatus.ERROR or test_status != TestStatus.FAIL:
+                test_status = wifi_result
+        except Exception as e:
+            print(f"Ошибка при выполнении WiFi теста: {e}")
+            test_status = TestStatus.ERROR
+
+    # Преобразуем статус для 1C
+    if test_status == TestStatus.ERROR:
+        test_status = "Ошибка"
+    elif test_status == TestStatus.SUCCESS:
+        test_status = "Успешно"
+    elif test_status == TestStatus.FAIL:
+        test_status = "Неудачно"
 
     await patch_one_device(
         {

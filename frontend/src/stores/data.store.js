@@ -22,11 +22,19 @@ export const useDataStore = defineStore('dataStore', (context) => {
         },
         {
             testId: 'wifi',
-            status: 'idle',
-            timeStart: '',
-            updatedAt: '',
-            timeEnd: '',
-            result: null
+            status: 'completed',
+            timeStart: '2024-01-15T10:30:00Z',
+            updatedAt: '2024-01-15T10:35:00Z',
+            timeEnd: '2024-01-15T10:35:00Z',
+            result: {
+                connected: true,
+                ssid: 'TestNetwork_5G',
+                downloadSpeed: 850,
+                uploadSpeed: 420,
+                signalStrength: -45,
+                frequency: '5GHz',
+                security: 'WPA3'
+            }
         }
     ])
 

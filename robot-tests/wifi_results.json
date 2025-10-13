@@ -1,0 +1,17 @@
+{
+    "test_status": "IDLE",
+    "progress": 0,
+    "connection_status": "disconnected",
+    "ssid": "",
+    "download_speed_mbps": 0,
+    "upload_speed_mbps": 0,
+    "signal_strength": 0,
+    "error_message": "",
+    "execution_time": "",
+    "details": "WiFi test not started",
+    "timestamp": "",
+    "interface": "",
+    "ip_address": "",
+    "gateway": "",
+    "dns_servers": []
+}

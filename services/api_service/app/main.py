@@ -10,6 +10,7 @@ from api.routes.post import router as post_router
 from api.routes.get import router as get_router
 from api.routes.firmware import router as firmware_router
 from api.routes.patch import router as patch_router
+from api_service.websocket.endpoint import parse_and_broadcast_gpio_event
 import subprocess
 import threading
 
@@ -45,6 +46,13 @@ async def startup_event():
                 output = gpio_process.stdout.readline()
                 if output:
                     print(f"[GPIO] {output.strip()}")
+                    # Парсим и рассылаем события через WebSocket
+                    asyncio.run_coroutine_threadsafe(
+                        parse_and_broadcast_gpio_event(
+                            output
+                        ),  # Используем новую функцию
+                        asyncio.get_event_loop(),
+                    )
                 if gpio_process.poll() is not None:
                     break
 

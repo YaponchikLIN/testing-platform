@@ -143,6 +143,36 @@
                 }}
               </div>
 
+              <!-- Show WiFi connection info -->
+              <div
+                v-if="
+                  slotProps.data.testId === 'wifi' &&
+                  slotProps.data.result
+                "
+                class="wifi-info"
+              >
+                <div v-if="slotProps.data.result.ssid" class="wifi-detail">
+                  <strong>SSID:</strong> {{ slotProps.data.result.ssid }}
+                </div>
+                <div v-if="slotProps.data.result.connection_status" class="wifi-detail">
+                  <strong>Connection:</strong> 
+                  <span :class="getWiFiConnectionClass(slotProps.data.result.connection_status)">
+                    {{ formatWiFiConnectionStatus(slotProps.data.result.connection_status) }}
+                  </span>
+                </div>
+                <div v-if="slotProps.data.result.download_speed_mbps > 0 || slotProps.data.result.upload_speed_mbps > 0" class="wifi-speeds">
+                  <span v-if="slotProps.data.result.download_speed_mbps > 0">
+                    <strong>↓</strong> {{ slotProps.data.result.download_speed_mbps }} Mbps
+                  </span>
+                  <span v-if="slotProps.data.result.upload_speed_mbps > 0" style="margin-left: 10px;">
+                    <strong>↑</strong> {{ slotProps.data.result.upload_speed_mbps }} Mbps
+                  </span>
+                </div>
+                <div v-if="slotProps.data.result.signal_strength" class="wifi-detail">
+                  <strong>Signal:</strong> {{ slotProps.data.result.signal_strength }}%
+                </div>
+              </div>
+
               <!-- Show failed conditions -->
               <div
                 v-if="getFailedConditions(slotProps.data).length > 0"
@@ -575,6 +605,39 @@ const formatDateTime = (dateTimeString) => {
   } catch (e) {
     return dateTimeString; // Return original string if date is invalid
   }
+};
+
+// WiFi formatting functions
+const formatWifiSpeed = (speed) => {
+  if (!speed || speed === 0) return "—";
+  if (speed >= 1000) {
+    return `${(speed / 1000).toFixed(1)} Gbps`;
+  }
+  return `${speed} Mbps`;
+};
+
+const formatSignalStrength = (rssi) => {
+  if (!rssi) return "—";
+  return `${rssi} dBm`;
+};
+
+const getWifiConnectionStatus = (wifiData) => {
+  if (!wifiData || !wifiData.result) return "Не подключен";
+  
+  const result = wifiData.result;
+  if (result.connected === true) {
+    return "Подключен";
+  } else if (result.connected === false) {
+    return "Не подключен";
+  }
+  return "Неизвестно";
+};
+
+const getWifiSSID = (wifiData) => {
+  if (!wifiData || !wifiData.result || !wifiData.result.ssid) {
+    return "—";
+  }
+  return wifiData.result.ssid;
 };
 
 const runSingleTest = () => {
