@@ -12,6 +12,7 @@ ${PASSWORD}              ${DEFAULT_PASSWORD}
 ${CONNECTION_TIMEOUT}    300s
 ${INTERFACE}             wlan0
 ${MEASUREMENT_TIME}      10s
+${JSON_PATH}             ${CURDIR}${/}wifi_results.json
 
 *** Test Cases ***
 Connect To WiFi And Measure Speed
