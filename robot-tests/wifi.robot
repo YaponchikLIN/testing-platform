@@ -174,7 +174,7 @@ Connect To WiFi With NMCLI
     Log    Сканирование WiFi сетей: ${scan_output}
     
     # Формируем команду для подключения с таймаутом, используя более надежный синтаксис
-    ${command}    Set Variable    timeout ${CONNECTION_TIMEOUT} nmcli device wifi connect "${SSID}" password "${PASSWORD}" --timeout ${CONNECTION_TIMEOUT}
+    ${command}    Set Variable    timeout ${CONNECTION_TIMEOUT} nmcli device wifi connect "${SSID}" password "${PASSWORD}"
     Log    Выполняется команда: ${command}
     
     # Выполняем команду через Execute Command
