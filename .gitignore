@@ -55,6 +55,15 @@ report.html
 # Kubernetes
 kubeconfig
 
+# Electron builds
+frontend/dist-electron/
+frontend/builddir/
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+
 # Misc
 .DS_Store
 .env
