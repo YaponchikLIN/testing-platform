@@ -1,6 +1,6 @@
 {
     "test_status": "FAIL",
-    "execution_time": 0.01,
+    "execution_time": 0.04,
     "wifi_data": {
         "ssid": "rtk-tOS-5EF0",
         "interface": "wlan0",
@@ -9,7 +9,7 @@
         "upload_speed_bps": "0",
         "download_speed_human": "0 bps",
         "upload_speed_human": "0 bps",
-        "error_message": "Invalid IF condition: Evaluating expression ' != ' failed: SyntaxError: invalid syntax (<string>, line 1)\n\nVariables in the original expression '${ssid_arg} != ${EMPTY}' were resolved before the expression was evaluated. Try using '$ssid_arg != ${EMPTY} != $EMPTY' syntax to avoid that. See Evaluating Expressions appendix in Robot Framework User Guide for more details."
+        "error_message": "Не удалось получить статистику для интерфейса wlan0"
     },
     "details": "Проблемы с WiFi: подключение или скорость равна 0",
     "progress": "0"

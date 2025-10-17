@@ -13,6 +13,7 @@ ${CONNECTION_TIMEOUT}    300s
 ${INTERFACE}             wlan0
 ${MEASUREMENT_TIME}      10s
 ${JSON_PATH}             ${CURDIR}${/}wifi_results.json
+${EMPTY}
 
 *** Test Cases ***
 Connect To WiFi And Measure Speed
@@ -69,14 +70,14 @@ Set WiFi Credentials From Arguments
     ${ssid_arg}    Get Variable Value    ${SSID_ARG}    ${EMPTY}
     ${password_arg}    Get Variable Value    ${PASSWORD_ARG}    ${EMPTY}
     
-    IF    $ssid_arg != $EMPTY
+    IF    "${ssid_arg}" != "${EMPTY}"
         Set Global Variable    ${SSID}    ${ssid_arg}
         Log    Используется SSID из аргументов: ${SSID}
     ELSE
         Log    Используется SSID по умолчанию: ${SSID}
     END
     
-    IF    $password_arg != $EMPTY
+    IF    "${password_arg}" != "${EMPTY}"
         Set Global Variable    ${PASSWORD}    ${password_arg}
         Log    Используется пароль из аргументов
     ELSE
@@ -86,7 +87,7 @@ Set WiFi Credentials From Arguments
 Detect Wireless Interface
     [Documentation]    Автоопределение беспроводного интерфейса
     ${rc}    ${output}    Run And Return Rc And Output    ip link show | grep -o "wlan[0-9]\\|wlp[0-9]s[0-9]" | head -1
-    IF    ${rc} == 0 and '${output}' != '${EMPTY}'
+    IF    ${rc} == 0 and "${output}" != "${EMPTY}"
         Set Global Variable    ${INTERFACE}    ${output}
         Log    Автоопределен интерфейс: ${INTERFACE}
     ELSE
