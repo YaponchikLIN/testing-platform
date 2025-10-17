@@ -2,12 +2,13 @@
   "name": "startup-utility-vue",
   "version": "0.1.0",
   "private": true,
-  "main": "dist/index.html",
+  "main": "electron/main.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-nw": "node build-nw.js",
-    "nw-serve": "nw .",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm run serve\" \"wait-on http://localhost:8080 && electron .\"",
+    "build-electron": "npm run build && electron-builder",
     "lint": "vue-cli-service lint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -37,13 +38,15 @@
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
     "axios-mock-adapter": "^2.1.0",
+    "concurrently": "^8.2.2",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "jest": "^30.1.3",
-    "nw": "^0.99.0-sdk",
-    "nwjs-builder-phoenix": "^1.15.0",
     "sass": "^1.89.2",
-    "sass-loader": "^16.0.5"
+    "sass-loader": "^16.0.5",
+    "wait-on": "^7.2.0"
   },
   "eslintConfig": {
     "root": true,
@@ -80,5 +83,27 @@
     "setupFilesAfterEnv": [
       "<rootDir>/src/api/__tests__/setup.js"
     ]
+  },
+  "build": {
+    "appId": "com.rtk.testing-platform",
+    "productName": "RTK Testing Platform",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/favicon.ico"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "mac": {
+      "target": "dmg"
+    }
   }
 }
