@@ -165,8 +165,16 @@ Connect To WiFi With NMCLI
     # Проверяем, доступен ли nmcli
     Run Keyword And Ignore Error    Check NMCLI Available
     
-    # Формируем команду для подключения с таймаутом
-    ${command}    Set Variable    timeout ${CONNECTION_TIMEOUT} nmcli d wifi connect "${SSID}" password "${PASSWORD}"
+    # Сначала удаляем существующее соединение с таким же именем (если есть)
+    ${delete_rc}    ${delete_output}    Run And Return Rc And Output    nmcli connection delete "${SSID}" 2>/dev/null || true
+    Log    Удаление существующего соединения: ${delete_output}
+    
+    # Сканируем доступные сети
+    ${scan_rc}    ${scan_output}    Run And Return Rc And Output    nmcli device wifi rescan
+    Log    Сканирование WiFi сетей: ${scan_output}
+    
+    # Формируем команду для подключения с таймаутом, используя более надежный синтаксис
+    ${command}    Set Variable    timeout ${CONNECTION_TIMEOUT} nmcli device wifi connect "${SSID}" password "${PASSWORD}" --timeout ${CONNECTION_TIMEOUT}
     Log    Выполняется команда: ${command}
     
     # Выполняем команду через Execute Command
@@ -176,22 +184,119 @@ Connect To WiFi With NMCLI
         Log    Успешное подключение к WiFi: ${SSID}
         Log    Вывод команды: ${output}
         
+        # Проверяем статус подключения
+        ${status_rc}    ${status_output}    Run And Return Rc And Output    nmcli connection show --active | grep "${SSID}"
+        IF    ${status_rc} == 0
+            Log    Подключение активно: ${status_output}
+        ELSE
+            Log    Предупреждение: Подключение может быть неактивным
+        END
+        
         # Ожидаем стабилизации подключения и получения IP адреса
         Wait For IP Address Assignment    ${CONNECTION_TIMEOUT}
+        
+        # Проверяем качество подключения
+        ${quality_ok}    Verify WiFi Connection Quality
+        IF    ${quality_ok}
+            Log    Качество подключения проверено и соответствует требованиям
+        ELSE
+            Log    Предупреждение: Подключение установлено, но качество может быть низким
+        END
     ELSE IF    ${rc} == 124
         Log    Таймаут подключения к WiFi ${SSID} (${CONNECTION_TIMEOUT})
         Fail    Таймаут подключения к WiFi ${SSID} после ${CONNECTION_TIMEOUT}
     ELSE
         Log    Ошибка подключения к WiFi. Код возврата: ${rc}
         Log    Вывод команды: ${output}
+        
+        # Дополнительная диагностика
+        ${diag_rc}    ${diag_output}    Run And Return Rc And Output    nmcli device wifi list | grep "${SSID}"
+        IF    ${diag_rc} == 0
+            Log    Сеть найдена в списке: ${diag_output}
+        ELSE
+            Log    Сеть не найдена в списке доступных WiFi сетей
+        END
+        
         Fail    Не удалось подключиться к WiFi ${SSID}
     END
 
 Check NMCLI Available
-    [Documentation]    Проверка доступности утилиты nmcli
+    [Documentation]    Проверка доступности утилиты nmcli и NetworkManager
+    
+    # Проверяем наличие nmcli
     ${rc}    ${output}    Run And Return Rc And Output    which nmcli
     Should Be Equal As Integers    ${rc}    0    nmcli не найден в системе
-    Log    nmcli доступен в системе
+    Log    nmcli найден: ${output}
+    
+    # Проверяем версию nmcli
+    ${version_rc}    ${version_output}    Run And Return Rc And Output    nmcli --version
+    IF    ${version_rc} == 0
+        Log    Версия nmcli: ${version_output}
+    ELSE
+        Log    Предупреждение: Не удалось получить версию nmcli
+    END
+    
+    # Проверяем статус NetworkManager
+    ${nm_rc}    ${nm_output}    Run And Return Rc And Output    nmcli general status
+    IF    ${nm_rc} == 0
+        Log    Статус NetworkManager: ${nm_output}
+    ELSE
+        Log    Предупреждение: NetworkManager может быть недоступен
+        Log    Вывод команды: ${nm_output}
+    END
+
+Verify WiFi Connection Quality
+    [Documentation]    Проверка качества WiFi подключения
+    Log    Проверка качества WiFi подключения для ${SSID}
+    
+    # Проверяем активное подключение
+    ${active_rc}    ${active_output}    Run And Return Rc And Output    nmcli connection show --active | grep "${SSID}"
+    IF    ${active_rc} != 0
+        Log    Предупреждение: Активное подключение к ${SSID} не найдено
+        RETURN    ${FALSE}
+    END
+    
+    # Получаем информацию о сигнале
+    ${signal_rc}    ${signal_output}    Run And Return Rc And Output    nmcli device wifi list | grep "${SSID}" | head -1
+    IF    ${signal_rc} == 0
+        Log    Информация о сигнале: ${signal_output}
+        
+        # Извлекаем уровень сигнала
+        ${signal_parts}    Split String    ${signal_output}    ${SPACE}
+        ${signal_strength}    Set Variable    0
+        FOR    ${part}    IN    @{signal_parts}
+            ${is_signal}    Run Keyword And Return Status    Should Match Regexp    ${part}    ^[0-9]+$
+            IF    ${is_signal}
+                ${signal_strength}    Set Variable    ${part}
+                BREAK
+            END
+        END
+        
+        Log    Уровень сигнала: ${signal_strength}%
+        
+        # Проверяем качество сигнала
+        IF    ${signal_strength} >= 70
+            Log    Отличное качество сигнала (${signal_strength}%)
+        ELSE IF    ${signal_strength} >= 50
+            Log    Хорошее качество сигнала (${signal_strength}%)
+        ELSE IF    ${signal_strength} >= 30
+            Log    Удовлетворительное качество сигнала (${signal_strength}%)
+        ELSE
+            Log    Слабый сигнал (${signal_strength}%)
+        END
+    ELSE
+        Log    Не удалось получить информацию о сигнале
+    END
+    
+    # Проверяем связность с помощью ping
+    ${ping_rc}    ${ping_output}    Run And Return Rc And Output    ping -c 3 -W 5 8.8.8.8
+    IF    ${ping_rc} == 0
+        Log    Связность с интернетом проверена успешно
+        RETURN    ${TRUE}
+    ELSE
+        Log    Проблемы со связностью: ${ping_output}
+        RETURN    ${FALSE}
+    END
 
 Wait For Stable Connection
     [Documentation]    Ожидание стабильного подключения
