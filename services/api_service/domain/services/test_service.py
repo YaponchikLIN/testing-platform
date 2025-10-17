@@ -279,6 +279,8 @@ async def run_test_simulation(test_dict: dict, test_request_payload: dict):
 
             # Запуск теста Robot Framework
             print("Запуск Robot Framework...")
+            # Для wifi теста используем wifi_results.json, для остальных - стандартное имя
+            json_filename = f"{test_id}_results.json" if test_id == "wifi" else f"{test_id}.json"
             json_file = os.path.abspath(
                 os.path.join(
                     os.path.dirname(__file__),
@@ -287,7 +289,7 @@ async def run_test_simulation(test_dict: dict, test_request_payload: dict):
                     "..",
                     "..",
                     "robot-tests",
-                    f"{test_id}.json",
+                    json_filename,
                 )
             )
             if os.path.isfile(json_file):

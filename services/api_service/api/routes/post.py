@@ -88,9 +88,9 @@ async def run_test(test_request_payload: TestRequest):
         test_item_in_db["time_end"] = ""
         test_item_in_db["result"] = None
 
-        if test_request_payload.status == "testing":
+        if test_item_in_db["status"] == "testing":
             return {"status": "success", "message": "Тесты уже запущены"}
-        elif test_request_payload.status == "success":
+        elif test_item_in_db["status"] == "success":
             return {"status": "success", "message": "Тесты уже пройдены"}
         else:
             asyncio.create_task(

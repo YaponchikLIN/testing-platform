@@ -26,7 +26,15 @@ export const useDataStore = defineStore('dataStore', (context) => {
             timeStart: '',
             updatedAt: '',
             timeEnd: '',
-            result: null
+            result: {
+                connected: null,
+                ssid: '',
+                downloadSpeed: null,
+                uploadSpeed: null,
+                signalStrength: null,
+                frequency: '',
+                security: ''
+            }
         }
     ])
 
