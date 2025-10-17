@@ -334,7 +334,6 @@ Perform Network Activity
 
 Calculate Network Speeds
     [Documentation]    Расчет скоростей RX/TX на основе статистики ip
-    [Returns]    ${download_speed}    ${upload_speed}
     ${rx_bytes_delta}    Evaluate    int(${FINAL_RX_BYTES}) - int(${INITIAL_RX_BYTES})
     ${tx_bytes_delta}    Evaluate    int(${FINAL_TX_BYTES}) - int(${INITIAL_TX_BYTES})
     ${rx_packets_delta}    Evaluate    int(${FINAL_RX_PACKETS}) - int(${INITIAL_RX_PACKETS})
