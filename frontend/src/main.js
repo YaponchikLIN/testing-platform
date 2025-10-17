@@ -6,11 +6,11 @@ import 'primeicons/primeicons.css'
 import { createPinia } from 'pinia'
 import { useConfigStore } from './stores/config.store'
 import ToastService from 'primevue/toastservice';
-import Select from 'primevue/select'
-import Card from 'primevue/card'
-import InputText from 'primevue/inputtext'
-import Lara from '@primeuix/themes/lara'
-import Button from 'primevue/button'
+import Select from 'primevue/select';
+import Card from 'primevue/card';
+import InputText from 'primevue/inputtext';
+import Lara from '@primeuix/themes/lara';
+import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Tag from 'primevue/tag';
@@ -18,7 +18,7 @@ import Message from 'primevue/message';
 import Dialog from 'primevue/dialog';
 import Toast from 'primevue/toast';
 import DatePicker from 'primevue/datepicker';
-import { ProgressBar } from 'primevue'
+import { ProgressBar } from 'primevue';
 
 const app = createApp(App)
 
