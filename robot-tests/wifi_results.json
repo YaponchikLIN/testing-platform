@@ -1,6 +1,6 @@
 {
     "test_status": "FAIL",
-    "execution_time": 0.04,
+    "execution_time": 0.05,
     "wifi_data": {
         "ssid": "rtk-tOS-5EF0",
         "interface": "wlan0",

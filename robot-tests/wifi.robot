@@ -3,6 +3,7 @@ Library    OperatingSystem
 Library    String
 Library    Collections
 Library    DateTime
+Library    Process
 
 *** Variables ***
 ${DEFAULT_SSID}          rtk-tOS-5EF0
