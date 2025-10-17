@@ -2,12 +2,16 @@
   "name": "startup-utility-vue",
   "version": "0.1.0",
   "private": true,
-  "main": "dist/index.html",
+  "description": "RTK Testing Platform - Electron application for testing utilities",
+  "author": "RTK Team",
+  "main": "electron/main.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-nw": "node build-nw.js",
-    "nw-serve": "nw .",
+    "electron": "electron .",
+    "electron-dev": "electron . --dev",
+    "electron-prod": "npm run build && electron .",
+    "build-electron": "vue-cli-service build && electron-builder",
     "lint": "vue-cli-service lint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -40,8 +44,8 @@
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "jest": "^30.1.3",
-    "nw": "^0.99.0-sdk",
-    "nwjs-builder-phoenix": "^1.15.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
     "sass": "^1.89.2",
     "sass-loader": "^16.0.5"
   },
@@ -80,5 +84,28 @@
     "setupFilesAfterEnv": [
       "<rootDir>/src/api/__tests__/setup.js"
     ]
+  },
+  "build": {
+    "appId": "com.rtk.testing-platform",
+    "productName": "RTK Testing Platform",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/main.js",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "dir",
+      "publisherName": "RTK Team",
+      "sign": null
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "mac": {
+      "target": "dmg"
+    }
   }
 }
