@@ -2,7 +2,6 @@ const Gpio = require('onoff').Gpio;
 const GPIOMeasure = require('./gpio_measure');
 
 
-
 class GPIOMonitor {
     constructor(gpioNumber) {
         this.gpioNumber = gpioNumber;
@@ -61,9 +60,9 @@ class GPIOReset {
     constructor() {
         this.gpioInstances = [];
         this.isInitialized = false;
-        this.inputPin = 8;
-        this.outputPins = [10, 11, 12, 13, 15];
-        
+        this.inputPin = 33;
+        this.outputPins = [32, 36, 97, 39, 40];
+
         // Автоматическая инициализация при создании экземпляра
         this.initialize();
     }
@@ -85,18 +84,18 @@ class GPIOReset {
 
         try {
             console.log('🔄 Начинаем сброс GPIO пинов...');
-            
+
             // Очищаем предыдущие экземпляры, если они есть
             this.cleanup();
-            
+
             // GPIO 8 - устанавливаем как INPUT
             console.log(`📥 Настройка GPIO ${this.inputPin} как INPUT...`);
             const gpio8 = new GPIOMeasure(this.inputPin);
             gpio8.initialize('in');
             this.gpioInstances.push(gpio8);
             console.log(`✅ GPIO ${this.inputPin} настроен как INPUT`);
-            
-            // GPIO 10, 11, 12, 13, 15 - устанавливаем как OUTPUT со значением 0
+
+            // GPIO 32, 36, 97, 39, 40 - устанавливаем как OUTPUT со значением 0
             for (const pin of this.outputPins) {
                 console.log(`📤 Настройка GPIO ${pin} как OUTPUT и установка в состояние 0...`);
                 const gpio = new GPIOMeasure(pin);
@@ -105,25 +104,25 @@ class GPIOReset {
                 this.gpioInstances.push(gpio);
                 console.log(`✅ GPIO ${pin} настроен как OUTPUT и установлен в состояние 0`);
             }
-            
+
             this.isInitialized = true;
             console.log('🎉 Все GPIO пины успешно настроены!');
-            
+
             // Показываем итоговое состояние
             this.showStatus();
-            
+
             return {
                 success: true,
                 message: 'GPIO пины успешно настроены',
                 gpioInstances: this.gpioInstances
             };
-            
+
         } catch (error) {
             console.error('❌ Ошибка при настройке GPIO:', error.message);
-            
+
             // Очищаем частично созданные экземпляры в случае ошибки
             this.cleanup();
-            
+
             return {
                 success: false,
                 message: `Ошибка при настройке GPIO: ${error.message}`,
@@ -217,7 +216,7 @@ class GPIOReset {
      */
     cleanup() {
         console.log('🧹 Очистка GPIO ресурсов...');
-        
+
         for (const gpio of this.gpioInstances) {
             try {
                 if (gpio && typeof gpio.cleanup === 'function') {
@@ -227,7 +226,7 @@ class GPIOReset {
                 console.error(`❌ Ошибка при очистке GPIO ${gpio.pin}:`, error.message);
             }
         }
-        
+
         this.gpioInstances = [];
         this.isInitialized = false;
         console.log('✅ Очистка GPIO завершена');

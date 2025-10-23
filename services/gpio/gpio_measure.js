@@ -34,8 +34,8 @@ class GPIOMeasure {
     }
 
     /**
-     * Изменение состояния GPIO (HIGH/LOW)
-     * @param {number|boolean} state - 1/true для HIGH, 0/false для LOW
+     * Изменение состояния GPIO
+     * @param {number|boolean} state - 1/true для состояния 1, 0/false для состояния 0
      */
     setState(state) {
         try {
@@ -47,10 +47,9 @@ class GPIOMeasure {
 
             const normalizedState = this.normalizeState(state);
             this.gpio.writeSync(normalizedState);
-            
-            const stateText = normalizedState === 1 ? 'HIGH' : 'LOW';
-            console.log(`🔄 GPIO ${this.gpioNumber} установлен в состояние: ${stateText}`);
-            
+
+            console.log(`🔄 GPIO ${this.gpioNumber} установлен в состояние: ${normalizedState}`);
+
             return true;
         } catch (error) {
             console.error(`❌ Ошибка изменения состояния GPIO ${this.gpioNumber}:`, error.message);
@@ -60,7 +59,7 @@ class GPIOMeasure {
 
     /**
      * Чтение текущего состояния GPIO
-     * @returns {number|null} - 1 для HIGH, 0 для LOW, null при ошибке
+     * @returns {number} - 1 или 0 (0 при ошибке)
      */
     getState() {
         try {
@@ -71,13 +70,12 @@ class GPIOMeasure {
             }
 
             const state = this.gpio.readSync();
-            const stateText = state === 1 ? 'HIGH' : 'LOW';
-            console.log(`📖 GPIO ${this.gpioNumber} текущее состояние: ${stateText}`);
-            
+            console.log(`📖 GPIO ${this.gpioNumber} текущее состояние: ${state}`);
+
             return state;
         } catch (error) {
             console.error(`❌ Ошибка чтения состояния GPIO ${this.gpioNumber}:`, error.message);
-            return null;
+            return 0; // Возвращаем 0 вместо null при ошибке
         }
     }
 
@@ -87,10 +85,6 @@ class GPIOMeasure {
     toggleState() {
         try {
             const currentState = this.getState();
-            if (currentState === null) {
-                throw new Error('Не удалось прочитать текущее состояние');
-            }
-
             const newState = currentState === 1 ? 0 : 1;
             return this.setState(newState);
         } catch (error) {
@@ -100,14 +94,14 @@ class GPIOMeasure {
     }
 
     /**
-     * Установка HIGH состояния
+     * Установка состояния 1
      */
     setHigh() {
         return this.setState(1);
     }
 
     /**
-     * Установка LOW состояния
+     * Установка состояния 0
      */
     setLow() {
         return this.setState(0);
@@ -161,14 +155,14 @@ class GPIOMeasure {
         }
         if (typeof state === 'string') {
             const lowerState = state.toLowerCase();
-            if (['high', '1', 'true', 'on'].includes(lowerState)) {
+            if (['1', 'true', 'on'].includes(lowerState)) {
                 return 1;
             }
-            if (['low', '0', 'false', 'off'].includes(lowerState)) {
+            if (['0', 'false', 'off'].includes(lowerState)) {
                 return 0;
             }
         }
-        throw new Error(`Некорректное состояние: ${state}. Используйте 1/0, true/false, 'high'/'low'`);
+        throw new Error(`Некорректное состояние: ${state}. Используйте 1/0, true/false`);
     }
 
     /**
@@ -179,15 +173,9 @@ class GPIOMeasure {
             gpioNumber: this.gpioNumber,
             isInitialized: this.isInitialized,
             direction: this.currentDirection,
-            currentState: this.isInitialized && this.currentDirection === 'in' ? this.getState() : null
+            currentState: this.isInitialized && this.currentDirection === 'in' ? this.getState() : 0
         };
     }
 }
-
-// Устаревший метод для обратной совместимости
-GPIOMeasure.prototype.gpioChangeState = function(state) {
-    console.warn('⚠️  Метод gpioChangeState устарел. Используйте setState()');
-    return this.setState(state);
-};
 
 module.exports = GPIOMeasure;

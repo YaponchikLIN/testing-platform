@@ -33,7 +33,7 @@ async def startup_event():
         global gpio_process
         gpio_process = await asyncio.create_subprocess_exec(
             "node",
-            "gpio_manager.js",
+            "services/gpio/gpio_manager.js",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )

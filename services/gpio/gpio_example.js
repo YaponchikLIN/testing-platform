@@ -27,16 +27,7 @@ async function demonstrateGPIOControl() {
         // Используем setState с различными форматами
         console.log('\n🔄 Тестирование различных форматов состояния...');
 
-        gpio.setState(true);    // boolean
-        await sleep(500);
-
-        gpio.setState('high');  // string
-        await sleep(500);
-
         gpio.setState(1);       // number
-        await sleep(500);
-
-        gpio.setState('low');   // string
         await sleep(500);
 
         // Переключение состояния (toggle)
