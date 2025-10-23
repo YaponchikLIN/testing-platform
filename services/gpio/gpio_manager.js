@@ -187,17 +187,18 @@ class GPIOReset {
      * @returns {boolean} Успешность операции
      */
     setOutputPin(pin, state) {
-        if (!this.isInitialized) {
-            console.warn('⚠️ GPIO не инициализированы. Вызовите initialize() сначала.');
-            return false;
-        }
-
-        if (!this.outputPins.includes(pin)) {
-            console.error(`❌ Пин ${pin} не является выходным пином`);
-            return false;
-        }
-
         try {
+            if (!this.isInitialized) {
+                console.warn('⚠️ GPIO не инициализированы. Вызовите initialize() сначала.');
+                return false;
+            }
+
+            if (!this.outputPins.includes(pin)) {
+                console.error(`❌ Пин ${pin} не является выходным пином`);
+                return false;
+            }
+
+
             const outputGpio = this.gpioInstances.find(gpio => gpio.pin === pin);
             if (outputGpio) {
                 outputGpio.setState(state);

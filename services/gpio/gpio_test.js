@@ -8,10 +8,10 @@ const { GPIOReset } = require('./gpio_manager');
 async function measureVoltage() {
     console.log('🔬 Начинаем измерение вольтажа...');
     console.log('⏳ Ожидание 5 секунд (заглушка)...');
-    
+
     // Заглушка с таймаутом 5 секунд
     await sleep(5000);
-    
+
     console.log('✅ Измерение вольтажа завершено (заглушка)');
     return true;
 }
@@ -24,29 +24,29 @@ async function measureVoltage() {
 async function runGPIOTest() {
     console.log('🚀 Запуск GPIO теста');
     console.log('====================');
-    
+
     try {
         // Инициализируем GPIOReset
         console.log('🔧 Инициализация GPIO системы...');
         const gpioReset = new GPIOReset();
-        
+
         // Получаем список выходных пинов
         const outputPins = gpioReset.outputPins; // [32, 36, 97, 39, 40]
         console.log(`📌 Выходные пины: ${outputPins.join(', ')}`);
         console.log(`🔄 Будет выполнен цикл для каждого пина: 1 -> измерение -> 0`);
-        
+
         // Тестируем каждый пин по очереди
         for (let i = 0; i < outputPins.length; i++) {
             const pin = outputPins[i];
             console.log(`\n🔧 Тестирование GPIO ${pin} (${i + 1}/${outputPins.length})`);
             console.log('─'.repeat(40));
-            
+
             // 1. Установка пина в состояние 1
             console.log(`  📤 Установка GPIO ${pin} в состояние 1`);
             const setHighResult = gpioReset.setOutputPin(pin, 1);
             
-            if (!setHighResult.success) {
-                console.error(`❌ Ошибка установки GPIO ${pin} в состояние 1:`, setHighResult.message);
+            if (!setHighResult) {
+                console.error(`❌ Ошибка установки GPIO ${pin} в состояние 1`);
                 return false;
             }
             
@@ -67,19 +67,19 @@ async function runGPIOTest() {
             console.log(`  📥 Установка GPIO ${pin} в состояние 0`);
             const setLowResult = gpioReset.setOutputPin(pin, 0);
             
-            if (!setLowResult.success) {
-                console.error(`❌ Ошибка установки GPIO ${pin} в состояние 0:`, setLowResult.message);
+            if (!setLowResult) {
+                console.error(`❌ Ошибка установки GPIO ${pin} в состояние 0`);
                 return false;
             }
             
             console.log(`  ✅ GPIO ${pin} установлен в состояние 0`);
             console.log(`  🎯 Тестирование GPIO ${pin} завершено`);
         }
-        
+
         console.log('\n🎉 Все GPIO пины протестированы успешно!');
         console.log('✅ GPIO тест завершен успешно!');
         return true;
-        
+
     } catch (error) {
         console.error('❌ Ошибка в GPIO тесте:', error.message);
         return false;
